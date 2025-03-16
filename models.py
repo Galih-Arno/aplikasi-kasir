@@ -33,7 +33,7 @@ class Customer(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DataTime, default=db.func.current_timestamp())
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
     total = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

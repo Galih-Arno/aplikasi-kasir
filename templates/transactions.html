@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl">Transactions</h2>
+<table class="mt-4 w-full">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Payment Method</th>
+            <th>User</th>
+            <th>Customer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.timestamp }}</td>
+            <td>{{ transaction.total }}</td>
+            <td>{{ transaction.payment_method }}</td>
+            <td>{{ transaction.user.username }}</td>
+            <td>{{ transaction.customer.name if transaction.customer else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

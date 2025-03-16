@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl">New Transaction</h2>
+<form method="POST" class="mt-4">
+    <select name="customer_id" class="border p-2">
+        <option value="">Select Customer</option>
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">{{ customer.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="payment_method" class="border p-2 mt-2">
+        <option value="cash">Cash</option>
+        <option value="credit_card">Credit Card</option>
+    </select>
+    <div class="mt-4">
+        <h3 class="text-xl">Items</h3>
+        <div id="items">
+            <div class="item">
+                <select name="items[0][product_id]" class="border p-2">
+                    <option value="">Select Product</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="items[0][quantity]" placeholder="Quantity" class="border p-2 mt-2">
+            </div>
+        </ ```html
+        </div>
+        <button type="button" onclick="addItem()" class="bg-blue-500 text-white p-2 mt-2">Add Another Item</button>
+    </div>
+    <button type="submit" class="bg-green-500 text-white p-2 mt-4">Complete Transaction</button>
+</form>
+<script>
+    let itemIndex = 1;
+    function addItem() {
+        const itemsDiv = document.getElementById('items');
+        const newItem = document.createElement('div');
+        newItem.classList.add('item');
+        newItem.innerHTML = `
+            <select name="items[${itemIndex}][product_id]" class="border p-2">
+                <option value="">Select Product</option>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="number" name="items[${itemIndex}][quantity]" placeholder="Quantity" class="border p-2 mt-2">
+        `;
+        itemsDiv.appendChild(newItem);
+        itemIndex++;
+    }
+</script>
+{% endblock %}

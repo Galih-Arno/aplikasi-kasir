@@ -14,7 +14,7 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 @app.route('/')
 @login_required
@@ -27,6 +27,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
+        print(f"Username: {username}, Password: {password}")    # Debugging
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('dashboard'))
@@ -42,19 +43,55 @@ def logout():
 @app.route('/products', methods=['GET', 'POST'])
 @login_required
 def products():
+    print(f"Current user: {current_user.username}")  # Debugging
     if request.method == 'POST':
         name = request.form['name']
-        price = request.form['price']
-        stock = request.form['stock']
+        try:
+            price = float(request.form['price'])  # Konversi ke float
+            stock = int(request.form['stock'])    # Konversi ke int
+        except ValueError:
+            flash('Price and stock must be valid numbers.')
+            return redirect(url_for('products'))
         barcode = request.form['barcode']
         category = request.form['category']
+        
+        # Validasi input
+        if price < 0 or stock < 0:
+            flash('Price and stock must be positive numbers.')
+            return redirect(url_for('products'))
+        
         new_product = Product(name=name, price=price, stock=stock, barcode=barcode, category=category)
         db.session.add(new_product)
         db.session.commit()
         flash('Product added successfully!')
         return redirect(url_for('products'))
+    
     all_products = Product.query.all()
     return render_template('products.html', products=all_products)
+
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    if request.method == 'POST':
+        product.name = request.form['name']
+        product.price = request.form['price']
+        product.stock = request.form['stock']
+        product.barcode = request.form['barcode']
+        product.category = request.form['category']
+        db.session.commit()
+        flash('Product updated successfully!')
+        return redirect(url_for('products'))
+    return render_template('edit_product.html', product=product)
+
+@app.route('/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    flash('Product deleted successfully!')
+    return redirect(url_for('products'))
 
 @app.route('/customers', methods=['GET', 'POST'])
 @login_required
@@ -70,7 +107,7 @@ def customers():
         flash('Customer added successfully!')
         return redirect(url_for('customers'))
     all_customers = Customer.query.all()
-    return render_template('customer.html', customers=all_customers)
+    return render_template('customers.html', customers=all_customers)
 
 @app.route('/new_transaction', methods=['GET', 'POST'])
 @login_required
@@ -112,4 +149,13 @@ def reports():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        
+        #Create admin user if not exists
+        if not User.query.filter_by(username='admin').first():
+            admin = User(username='admin')
+            admin.set_password('admin123') # Set password
+            db.session.add(admin)
+            db.session.commit()
+
+        print(app.url_map)
     app.run(debug=True)

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-2xl">Products</h2>
+<form method="POST" class="mt-4">
+    <input type="text" name="name" placeholder="Product Name" required class="border p-2">
+    <input type="number" name="price" placeholder="Price" required class="border p-2 mt-2">
+    <input type="number" name="stock" placeholder="Stock" required class="border p-2 mt-2">
+    <input type="text" name="barcode" placeholder="Barcode" class="border p-2 mt-2">
+    <input type="text" name="category" placeholder="Category" class="border p-2 mt-2">
+    <button type="submit" class="bg-green-500 text-white p-2 mt-2">Add Product</button>
+</form>
+<table class="mt-4 w-full">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Barcode</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.barcode }}</td>
+            <td>{{ product.category }}</td>
+            <td class="border px-4 py-2">
+                <a href="{{ url_for('edit_product', product_id=product.id) }}" class="text-blue-500">Edit</a>
+                <form action="{{ url_for('delete_product', product_id=product.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="text-red-500">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
